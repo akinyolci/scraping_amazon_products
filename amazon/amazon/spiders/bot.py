@@ -1,3 +1,4 @@
+#from urllib.parse import urljoin
 import scrapy
 from ..items import AmazonItem
 
@@ -52,6 +53,7 @@ class BotSpider(scrapy.Spider):
 
         yield  items
 
+        
 
 
 
