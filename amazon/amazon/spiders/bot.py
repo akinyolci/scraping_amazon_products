@@ -12,26 +12,45 @@ class BotSpider(scrapy.Spider):
 
     def parse(self, response):
         items = AmazonItem()
-        product_name = response.css('.a-size-base-plus::text').extract()
-        product_price = response.css('.a-price-whole').css('::text').extract()
 
+        products_names = response.css('.a-size-base-plus::text').extract()
+        products_prices = response.css('.a-price-whole').css('::text').extract()
         all_products_asins = response.xpath('//*[@data-asin]')
 
+        products_names_list =[]
+        products_prices_list = []
         products_asins_list = []
+
         for product in all_products_asins:
             asin = product.xpath('@data-asin').extract_first()
-            products_asins_list.append( asin ) #product_url = f"https://www.amazon.com/dp/{asin}"
+            if asin !="":
+                products_asins_list.append( asin ) #product_url = f"https://www.amazon.com/dp/{asin}"
 
+        for name in products_names:
+            if len(name) > 2:
+                products_names_list.append(name)
+            
+        for price in products_prices:
+            if price !='.':
+                products_prices_list.append(price)
+        """
+        Storage = {}
+        
+        counter = 0
+        while counter <= len(all_products_asins):
+            Storage[all_products_asins[counter]] = products_prices_list[counter]
+            counter +=1
+        """
+        """
+        for i in range(0,len(all_products_asins)):
+            Storage[str(products_asins_list[i])] = str(products_prices_list[i])
+        """
 
+        items['products_names_list'] = products_names_list
+        items['products_prices_list'] = products_prices_list
+        items['products_asins_list'] = products_asins_list
 
-
-
-
-        items['product_name'] = product_name
-        items['product_price'] = product_price
-        items['product_imagelink'] = products_asins_list
-
-        yield items
+        yield  items
 
 
 
