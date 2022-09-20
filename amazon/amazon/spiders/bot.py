@@ -12,17 +12,15 @@ class BotSpider(scrapy.Spider):
 
     def parse(self, response):
         items = AmazonItem()
-                            #next_pag = next_page = response.css('span.s-pagination-strip a::attr(href)').get()
         product_name = response.css('.a-size-base-plus::text').extract()
-                            #product_author = response.css('.a-color-secondary .a-size-base.s-link-style').css('::text').extract()
         product_price = response.css('.a-price-whole').css('::text').extract()
 
         all_products_asins = response.xpath('//*[@data-asin]')
 
-        products_Links_list = []
+        products_asins_list = []
         for product in all_products_asins:
             asin = product.xpath('@data-asin').extract_first()
-            products_Links_list.append( asin ) #product_url = f"https://www.amazon.com/dp/{asin}"
+            products_asins_list.append( asin ) #product_url = f"https://www.amazon.com/dp/{asin}"
 
 
 
@@ -30,10 +28,8 @@ class BotSpider(scrapy.Spider):
 
 
         items['product_name'] = product_name
-        #items['product_author'] = product_author
         items['product_price'] = product_price
-        items['product_imagelink'] = products_Links_list
-        #items['next_page'] = next_pag
+        items['product_imagelink'] = products_asins_list
 
         yield items
 
