@@ -27,10 +27,10 @@ class BotSpider(scrapy.Spider):
 
     def parse(self, response):
         items = AmazonItem()
-
         products_names = response.css('.a-size-base-plus::text').extract()
         products_prices = response.css('.a-price-whole').css('::text').extract()
         all_products_asins = response.xpath('//*[@data-asin]')
+        #pages_number = response.css('.s-pagination-ellipsis+ .s-pagination-disabled::text').extract_first()
 
         products_names_list =[]
         products_prices_list = []
@@ -49,22 +49,27 @@ class BotSpider(scrapy.Spider):
             if price !='.':
                 products_prices_list.append(price)
 
-        
+        for i in range(6,400):
+            next_page = 'https://www.amazon.com/s?i=grocery&rh=n%3A16310101&fs=true&page='+ str(i) +'&qid=1663505602&ref=sr_pg_3'
+            yield scrapy.Request(url=next_page, callback=self.parse)
 
+
+        """
         for asin in products_asins_list:
             product_url = f"https://www.amazon.com/dp/{asin}"
-            yield scrapy.Request(url=product_url, callback=self.parse_product_page, meta={'asin': asin})
-        
+            yield scrapy.follow(product_url, callback=self.parse)
+        """
+        """
         next_page = response.xpath('//li[@class="a-last"]/a/@href').extract_first()
         if next_page:
             url = urljoin("https://www.amazon.com",next_page)
-            yield scrapy.Request(url=product_url, callback=self.parse_keyword_response)
-
-
-    def parse_keyword_response(self, response):
-        for asin in products_asins_list:
-            product_url = f"https://www.amazon.com/dp/{asin}"
-            yield scrapy.Request(url=product_url, callback=self.parse_product_page, meta={'asin': asin})
+            if next_page is not None:
+                yield scrapy.Request(url=url, callback=self.parse)
+        """
+        """
+        if next_page is not None:
+            response.follow(next_page, self.parse)
+        """
 
 
 
